@@ -83,7 +83,8 @@ set HAMMER_XGE_OPTS=%HAMMER_XGE_OPTS% /allowintercept=python /allowremote=cl
 if not defined HAMMER_XGE_PATH (
   set HAMMER_XGE_PATH="%ProgramFiles%\Xoreax\IncrediBuild"
 )
-if not exist "%HAMMER_XGE_PATH%\xgConsole.exe" (
+set XGCONSOLE_PATH=%HAMMER_XGE_PATH%\xgConsole.exe
+if not exist %XGCONSOLE_PATH% (
   echo Warning: xgConsole.exe not found in %HAMMER_XGE_PATH%
   echo Not using IncrediBuild.
   goto END_XGE_SETUP
