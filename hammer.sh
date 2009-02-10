@@ -93,7 +93,6 @@ case $OSTYPE in
         fi
 
         local pythonpath="$SCONS_DIR"
-        pythonpath="$pythonpath;$SCONS_DIR/scons-local"
 
         local cmd=('PWD=$(cygpath -m -a .)'
           'SHELL=$(cygpath -w -a $SHELL)'

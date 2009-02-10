@@ -60,7 +60,7 @@ setlocal
 set PRESCONS_PATH=%PATH%
 
 :: Assume SCONS_DIR has been set
-set PYTHONPATH=%SCONS_DIR%\scons-local
+set PYTHONPATH=%SCONS_DIR%
 
 :: Specify site_scons directories
 set HAMMER_OPTS=%HAMMER_OPTS% --site-dir=%~dp0site_scons

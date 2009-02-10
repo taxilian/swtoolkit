@@ -250,6 +250,7 @@ def main():
     pythonpaths.append(old_pythonpath)
 
   os.environ["PYTHONPATH"] = os.pathsep.join(pythonpaths)
+  os.environ["SCONS_DIR"] = scons_dir
 
   tests = []
 
