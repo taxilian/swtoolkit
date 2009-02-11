@@ -30,12 +30,17 @@ EXECUTION REQUIREMENTS
 
 Software Construction Toolkit requires:
 
-    * Python 2.4 or later.  It is not yet compatible with Python 3.
+    * Python 2.4 or later.
+          o For example, from http://www.python.org
+          o If on Windows, also need the pywin32 extensions
+            (http://sourceforge.net/projects/pywin32/)
+          o Software Construction Toolkit is not yet compatible with Python 3.
 
     * SCons 1.2 or later.
-        * A scons or scons-local install is required for building projects.
-        * A scons-src install is required for developing Software Construction
-          Toolkit.
+          o For example, from http://www.scons.org/download.php
+          o A scons or scons-local install is required for building projects.
+          o A scons-src install is required for developing Software
+            Construction Toolkit.
 
 There should be no other direct dependencies or requirements to run the
 Software Construction Toolkit.
@@ -47,9 +52,12 @@ INSTALLATION
 Installation of this package should be as simple as copying its directory
 tree to any directory.
 
-If you are using the hammer.bat or hammer.sh entry point, you also need to
-set up a SCONS_DIR environment variable to point to the directory containing
-SCons.
+If you are using the hammer.bat or hammer.sh entry point, you also need to set
+up a SCONS_DIR environment variable to point to the directory containing SCons.
+
+    * For a normal SCons install, this is the engine subdir.
+    * For a scons-local install, this is the . subdir.
+    * For a scons-src install, this is the src/engine subdir.
 
 If you are modifying Software Construction Toolkit and need to run the unit
 tests, set up a SCONS_DEV_DIR environment variable to point to the directory
@@ -74,6 +82,9 @@ COPYING
 
 README.software_construction_toolkit
         What you're looking at right now.
+
+history.txt
+        Change history for major releases.
 
 hammer.bat
         The entry point for Software Construction Toolkit on Windows.

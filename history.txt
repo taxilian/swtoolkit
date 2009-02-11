@@ -1,0 +1,6 @@
+History / release notes for Software Construction Toolkit
+---------------------------------------------------------
+
+Version 0.0.1           2009-02-11
+
+    Added history.txt.
