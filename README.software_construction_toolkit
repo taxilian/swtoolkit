@@ -49,8 +49,8 @@ Software Construction Toolkit.
 INSTALLATION
 ============
 
-Installation of this package should be as simple as copying its directory
-tree to any directory.
+Installation of this package is as simple as copying its directory tree to any
+directory.
 
 If you are using the hammer.bat or hammer.sh entry point, you also need to set
 up a SCONS_DIR environment variable to point to the directory containing SCons.
@@ -64,11 +64,11 @@ tests, set up a SCONS_DEV_DIR environment variable to point to the directory
 containing the scons-src install.
 
 Once you have installed this package, you should write a main.scons file at the
-top level of your source tree to build your software as you see fit.
+top level of your source tree to build your software.
 
 Then modify the build/install instructions for your package to instruct
 your users to execute Software Construction Toolkit by running hammer.bat or
-hammer.sh:
+hammer.sh.
 
 
 CONTENTS OF THIS PACKAGE
@@ -94,9 +94,8 @@ hammer.sh
         like systems, including Cygwin.
 
 wrapper.py
-        A script which sits between the hammer entry points and SCons, which
-        does some additional setup for invoking SCons in the context of the
-        Software Construction Toolkit.
+        A script called by hammer which does some additional setup and then
+        calls SCons.
 
 site_scons/
         Tools and modules for Software Construction Toolkit.
@@ -107,7 +106,7 @@ samples/
 
 bin/
         Additional executables and utilities for developing the Software
-        Construction Toolkit, including the test-runnner.
+        Construction Toolkit, including the test-runner.
 
 lib/
         Additional libraries for developing the Software Construction Toolkit,
