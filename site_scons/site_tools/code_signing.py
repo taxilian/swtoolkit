@@ -64,7 +64,7 @@ def generate(env):
 
   env.SetDefault(
       # Path to Microsoft signtool.exe
-      SIGNTOOL='$VC80_DIR/common7/tools/bin/signtool.exe',
+      SIGNTOOL='"$VC80_DIR/common7/tools/bin/signtool.exe"',
       # No certificate by default.
       CERTIFICATE_PATH='',
       # No certificate password by default.
