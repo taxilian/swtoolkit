@@ -67,7 +67,7 @@
 case $OSTYPE in
   cygwin*)
       function sct_hammer() {
-        local sct_dir="$(dirname $0)"
+        local sct_dir="$(dirname -- "${0}")"
 
         # Invoke scons via the software construction toolkit wrapper.
         # NOTE: Remove -O and -OO from the following to make
@@ -75,7 +75,7 @@ case $OSTYPE in
         local hammer_cmd=("python"
                           "-O" "-OO"
                           "$COVERAGE_HOOK"
-                          "$sct_dir/wrapper.py"
+                          "\"$sct_dir/wrapper.py\""
                           "$HAMMER_OPTS"
                           "--site-dir=\"$sct_dir/site_scons\"")
 
@@ -108,7 +108,7 @@ case $OSTYPE in
       ;;
   darwin*|linux*)
       function sct_hammer() {
-        local sct_dir="$(dirname $0)"
+        local sct_dir="$(dirname -- "${0}")"
         local pythonpath="$SCONS_DIR"
         pythonpath="$pythonpath:$SCONS_DIR/scons-local"
 
@@ -119,7 +119,7 @@ case $OSTYPE in
                    'python'
                    '-O' '-OO'
                    "$COVERAGE_HOOK"
-                   "${sct_dir}/wrapper.py"
+                   "\"${sct_dir}/wrapper.py\""
                    "$HAMMER_OPTS"
                    "--site-dir=\"${sct_dir}/site_scons\""
                    "$@")

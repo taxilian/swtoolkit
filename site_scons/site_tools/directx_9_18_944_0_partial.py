@@ -38,15 +38,3 @@ def generate(env):
   env['DIRECTX9_DIR'] = '$DIRECTX9_18_944_0_PARTIAL_DIR'
   env.AppendENVPath('INCLUDE', env.Dir('$DIRECTX9_DIR/include').abspath)
   env.AppendENVPath('LIB', env.Dir('$DIRECTX9_DIR/lib/x86').abspath)
-
-
-def exists(env):
-  """Returns true if tool exists."""
-  # NOTE: SCons requires the use of this name, which fails gpylint.
-
-  # If directory explicitly specified, we exist
-  if env.get('DIRECTX9_18_944_0_PARTIAL_DIR'):
-    return 1
-  else:
-    # TODO: Don't know how to find it otherwise!
-    return 0

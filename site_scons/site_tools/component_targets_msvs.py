@@ -467,6 +467,9 @@ def ComponentVSSourceProjectBuilder(target, source, env):
   # Walk all sources and build directory trees
   print '  Building source tree...'
   for n in all_srcs:
+    if not hasattr(n, 'rfile'):
+      continue  # Not a file
+    n = n.rfile()
     if not hasattr(n, 'isfile') or not n.isfile():
       continue  # Not a file
     if n.has_builder():
@@ -474,7 +477,7 @@ def ComponentVSSourceProjectBuilder(target, source, env):
     if n.suffix not in suffixes:
       continue  # Not a file type we include
 
-    path = n.rfile().abspath
+    path = n.abspath
     for f in folders:
       if path.startswith(f[1]):
         if f[0] is None:

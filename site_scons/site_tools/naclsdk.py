@@ -177,7 +177,9 @@ def generate(env):
   env.Replace(NACL_SDK_ROOT=_GetNaclSdkRoot(env, sdk_mode))
 
   # Validate the sdk unless disabled from the command line.
-  if int(SCons.Script.ARGUMENTS.get('naclsdk_validate', 1)):
+  env.SetDefault(NACL_SDK_VALIDATE='1')
+  if int(SCons.Script.ARGUMENTS.get('naclsdk_validate',
+      env.subst('$NACL_SDK_VALIDATE'))):
     _ValidateSdk(env, sdk_mode)
 
   if env.subst('$NACL_SDK_ROOT_ONLY'): return
@@ -227,15 +229,3 @@ def generate(env):
           '-fno-builtin',
       ],
   )
-
-
-def exists(env):
-  """SCons entry point to detect this tool.
-
-  Args:
-    env: The SCons environment in question.
-
-  NOTE: SCons requires the use of this name, which fails lint.
-  """
-  env = env  # Suppress lint.
-  return True

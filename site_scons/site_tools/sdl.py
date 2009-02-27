@@ -74,7 +74,7 @@ def _HermeticSDL(env):
     env.SetDefault(
         SDL_VALIDATE_PATHS=[
             ('unsupported_platform',
-             ('Not supported on this platform.')),
+             ('Not supported on this platform.',)),
         ],
         SDL_IS_MISSING=True,
     )
@@ -83,7 +83,7 @@ def _HermeticSDL(env):
     env.SetDefault(
         SDL_VALIDATE_PATHS=[
             ('$SDL_DIR',
-             ('You are missing a hermetic copy of SDL...')),
+             ('You are missing a hermetic copy of SDL...',)),
         ],
     )
 
@@ -140,8 +140,13 @@ def generate(env):
   # NOTE: SCons requires the use of this name, which fails gpylint.
   """SCons entry point for this tool."""
 
+  # Default to hermetic mode
+  # TODO: Should default to local for open-source installs
+  env.SetDefault(SDL_MODE='hermetic')
+
   # Allow the hermetic copy to be disabled on the command line.
-  sdl_mode = SCons.Script.ARGUMENTS.get('sdl', 'hermetic')
+  sdl_mode = SCons.Script.ARGUMENTS.get('sdl', env.subst('$SDL_MODE'))
+  env['SDL_MODE'] = sdl_mode
   if sdl_mode == 'local':
     _LocalSDL(env)
   elif sdl_mode == 'hermetic':
@@ -153,6 +158,9 @@ def generate(env):
 
   validate_paths = env['SDL_VALIDATE_PATHS']
 
+  # TODO: Should just print a warning if SDL isn't installed.  Perhaps check
+  # for an env['SDL_EXIT_IF_NOT_FOUND'] variable so that projects can decide
+  # whether to fail if SDL is missing.
   if not validate_paths:
     sys.stderr.write('*' * 77 + '\n')
     sys.stderr.write('ERROR - SDL not supported on this platform.\n')

@@ -1,6 +1,32 @@
 History / release notes for Software Construction Toolkit
----------------------------------------------------------
 
+------------------------------------------------------------------------------
+Version 0.1.0           2009-02-27
+
+  Changes:
+
+    * Disabled code coverage tests under code coverage on Windows and Linux.
+    * Added tests:
+          component_targets_msvc_test.py
+          component_targets_xml_test.py
+          distcc_test.py
+          runtest_test.py
+          sdl_test.py
+          visual_studio_solution_test.py
+    * Removed unused exists() function from tools.  SCons only calls exists()
+      to detect its own built-in tools, so these aren't needed.
+    * Added workaround for naclsdk and sdl tools crashing if their local tools
+      weren't installed.  These checks can now be diabled via $SDL_MODE and
+      $NACL_SDK_VALIDATE variables, so these tools can be tested.
+    * Fixed ComponentVSSourceProjectBuilder() not picking up sources from
+      inside $MAIN_DIR, though it worked for sources with absolute paths.
+
+  Issues fixed:
+
+    1: mandelbrot sample doesn’t work if the current directory has spaces
+    2: hammer.bat does not properly escape spaces in current directory
+
+------------------------------------------------------------------------------
 Version 0.0.1           2009-02-11
 
     Added history.txt.

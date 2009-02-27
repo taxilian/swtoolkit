@@ -155,8 +155,7 @@ class Test:
 
   def Execute(self):
     """Execute the test command line."""
-    self.status = subprocess.call(' '.join(self.GetCommandArgs()),
-                                  shell=True)
+    self.status = subprocess.call(self.GetCommandStr(), shell=True)
     if self.status < 0 or self.status > 2:
       sys.stdout.write("Unexpected exit status %d\n" % self.status)
 

@@ -1,1 +1,1 @@
-@call %~dp0..\..\hammer.bat %*
+@call "%~dp0..\..\hammer.bat" %*

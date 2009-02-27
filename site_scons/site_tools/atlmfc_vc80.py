@@ -62,16 +62,3 @@ def generate(env):
 
   env.AppendENVPath('INCLUDE', env.Dir('$ATLMFC_VC80_DIR/include').abspath)
   env.AppendENVPath('LIB', env.Dir('$ATLMFC_VC80_DIR/lib').abspath)
-
-
-def exists(env):
-  """Returns true if tool exists."""
-  # NOTE: SCons requires the use of this name, which fails gpylint.
-
-  # If directory explicitly specified, we exist
-  if env.get('ATLMFC_VC80_DIR'):
-    return 1
-  elif _FindLocalInstall():
-    return 1
-  else:
-    return 0

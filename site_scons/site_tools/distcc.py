@@ -89,9 +89,3 @@ def generate(env):
         # On Mac, distcc requires the full path to the compiler
         compiler = env.WhereIs(compiler)
       env[compiler_var] = '$DISTCC ' + compiler
-
-
-def exists(env):
-  """Returns true if tool exists."""
-  # NOTE: SCons requires the use of this name, which fails gpylint.
-  return env.Detect('distcc')
