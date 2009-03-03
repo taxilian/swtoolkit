@@ -272,6 +272,7 @@ def ComponentLibrary(self, lib_name, *args, **kwargs):
   all_outputs += env.Replicate('$LIB_DIR', need_for_link)
 
   # Publish output
+  env.Publish(lib_name, 'link', need_for_link)
   env.Publish(lib_name, 'run', need_for_run)
   env.Publish(lib_name, 'debug', need_for_debug)
 

@@ -51,6 +51,8 @@ options:
   -l, --list            List available tests and exit.
   -n, --no-exec         No execute, just print command lines.
   -P PYTHON             Use the specified PYTHON interpreter.
+  -F FLAG               Pass the specified FLAG to python.  May be specified
+                        multiple times to pass multiple flags.
   --verbose=LEVEL       Set verbose level: 1 = print executed commands. 2 =
                         print commands and non-zero output. 3 = print commands
                         and all output.
@@ -61,15 +63,41 @@ options:
 """
 
 
+dummy_test_contents = """
+import TestFramework
+
+
+def main():
+  print 'running dummy test'
+  test = TestFramework.TestFramework()
+  test.pass_test()
+  return 0
+
+
+if __name__ == '__main__':
+  main()
+"""
+
+other_py_contents = """
+import sys
+print 'other.py got arg="%s"' % sys.argv[1]
+"""
+
+
 def main():
 
   # Test runtest itself, rather than scons
   runtest = '%s %s/bin/runtest.py ' % (
       os.environ.get('COVERAGE_HOOK', ''), os.getcwd())
+  # Convert test args to a list, so we can add args with spaces below
+  runtest = runtest.split()
+
   test = TestFramework.TestFramework(program=sys.executable)
 
   base = 'runtest/'
   test.subdir(base)
+  test.write('dummy_test.py', dummy_test_contents)
+  test.write('other.py', other_py_contents)
 
   # On mac, help output is slightly different
   if sys.platform == 'darwin':
@@ -78,10 +106,21 @@ def main():
     expect_stdout = expect_stdout.replace('options:', 'Options:')
 
   # Check help
-  test.run(arguments=runtest + '--help', stdout=expect_stdout)
+  test.run(arguments=runtest + ['--help'], stdout=expect_stdout)
 
   # Check running itself but doing nothing
-  test.run(arguments=runtest + '-n -a')
+  test.run(arguments=runtest + ['-n', '-a'])
+
+  # Run a dummy test
+  test.run(arguments=runtest + ['dummy_test.py'], stderr='PASSED\n')
+  test.fail_test(test.stdout().find('running dummy test') == -1)
+
+  # Check -F arguments
+  test.run(arguments=runtest + ['-Fother.py', '-F', '1 2 3', 'dummy_test.py'])
+  # Should not have run the test
+  test.fail_test(test.stdout().find('running dummy test') != -1)
+  # Should have the second -F arg, all as one param
+  test.fail_test(test.stdout().find('other.py got arg="1 2 3"') == -1)
 
   # Check fake cert creation routines in TestFramework
   test.FakeWindowsCER(base + 'fake1.cer')

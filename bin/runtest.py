@@ -95,6 +95,12 @@ OPTION_LIST = [
         help="Use the specified PYTHON interpreter.",
     ),
     optparse.make_option(
+        "-F", dest="pythonflags", metavar="FLAG", default=[], type="string",
+        action="append",
+        help=("Pass the specified FLAG to python.  May be specified multiple "
+              "times to pass multiple flags.")
+    ),
+    optparse.make_option(
         "--verbose", dest="verbose", metavar="LEVEL",
         help=("Set verbose level: "
               "1 = print executed commands. "
@@ -227,7 +233,7 @@ def main():
       python = sys.executable
 
   Test.command = [python]
-  Test.common_args = []
+  Test.common_args = opts.pythonflags
 
   # Need SCONS_DEV_DIR environment variable to point to the root of a
   # SCons source (scons-src) package, so that we can use its QMTest modules.
