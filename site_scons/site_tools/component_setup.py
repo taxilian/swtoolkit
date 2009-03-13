@@ -39,6 +39,7 @@ and should be the first tool from this toolkit referenced by any environment.
 import os
 import sys
 import SCons
+import usage_log
 
 
 #------------------------------------------------------------------------------
@@ -252,6 +253,9 @@ def generate(env):
       os.path.join(os.path.dirname(__file__), '../..'))
   source_root = env.get('SOURCE_ROOT', source_root_relative)
   env['SOURCE_ROOT'] = env.Dir(source_root).abspath
+
+  usage_log.log.SetParam('component_setup.project_path',
+                         env.RelativePath('$SOURCE_ROOT', '$MAIN_DIR'))
 
   # Make tool root separate from source root so it can be overridden when we
   # have a common location for tools outside of the current clientspec.  Need

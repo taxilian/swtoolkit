@@ -39,6 +39,7 @@ for the target environment.
 import __builtin__
 import sys
 import SCons
+import usage_log
 
 
 def _HostPlatform():
@@ -225,6 +226,8 @@ def BuildEnvironments(environments):
   Returns:
     List of environments which were actually evaluated (built).
   """
+  usage_log.log.AddEntry('BuildEnvironments start')
+
   # Get options
   build_modes = SCons.Script.GetOption('build_mode')
   # TODO: Remove support legacy MODE= argument, once everyone has transitioned
@@ -259,6 +262,8 @@ def BuildEnvironments(environments):
 
   # Add help on targets.
   AddTargetHelp()
+
+  usage_log.log.AddEntry('BuildEnvironments done')
 
   # Return list of environments actually evaluated
   return environments_to_evaluate
@@ -327,6 +332,7 @@ Additional options for SCons:
   --site-path=DIRLIST         Comma-separated list of additional site
                               directory paths; each is processed as if passed
                               to --site-dir.
+  --usage-log=FILE            Write XML usage log to FILE.
 '''
 
 def SiteInitMain():
@@ -336,6 +342,8 @@ def SiteInitMain():
   # this site_init.py has been dropped into a project directory.
   if hasattr(__builtin__, 'BuildEnvironments'):
     return
+
+  usage_log.log.AddEntry('Software Construction Toolkit site init')
 
   # Let people use new global methods directly.
   __builtin__.AddSiteDir = AddSiteDir
@@ -391,8 +399,20 @@ def SiteInitMain():
       action='store',
       metavar='PATH',
       help='comma-separated list of site directories')
+  SCons.Script.AddOption(
+      '--usage-log',
+      dest='usage_log',
+      nargs=1, type='string',
+      action='store',
+      metavar='PATH',
+      help='file to write XML usage log to')
 
   SCons.Script.Help(_new_options_help)
+
+  # Set up usage log
+  usage_log_file = SCons.Script.GetOption('usage_log')
+  if usage_log_file:
+    usage_log.log.SetOutputFile(usage_log_file)
 
   # Set current host platform
   host_platform = SCons.Script.GetOption('host_platform')
@@ -413,6 +433,7 @@ def SiteInitMain():
   if not SCons.Script.GetOption('no_site_dir'):
     SCons.Script.Main._load_site_scons_dir(
         SCons.Node.FS.get_default_fs().SConstruct_dir, None)
+
 
 # Run main code
 SiteInitMain()

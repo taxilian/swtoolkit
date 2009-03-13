@@ -177,7 +177,8 @@ def generate(env):
       LINKFLAGS_DEBUG=['-g'],
 
       # Settings for optimized
-      CCFLAGS_OPTIMIZED=['-O2'],
+      # Optimized for space by default, which is what Xcode does
+      CCFLAGS_OPTIMIZED=['-Os'],
 
       # Settings for component_builders
       COMPONENT_LIBRARY_LINK_SUFFIXES=['.dylib', '.a'],

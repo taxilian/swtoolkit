@@ -241,14 +241,17 @@ def main():
   if not scons_dev_dir:
     parser.error('SCONS_DEV_DIR environment variable not set.')
     return 1
-  scons_test_lib_dir = os.path.join(scons_dev_dir, "QMTest")
   scons_dir = os.path.join(scons_dev_dir, "src", "engine")
 
   cwd = os.getcwd()
-  lib_dir = os.path.join(cwd, "lib")
   test_dir = os.path.join(cwd, "test")
 
-  pythonpaths = [lib_dir, scons_test_lib_dir, scons_dir]
+  pythonpaths = [
+      os.path.join(cwd, "lib"),
+      os.path.join(cwd, "site_scons"),
+      os.path.join(scons_dev_dir, "QMTest"),
+      scons_dir,
+  ]
 
   old_pythonpath = os.environ.get("PYTHONPATH")
   if old_pythonpath:

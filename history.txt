@@ -1,9 +1,24 @@
 History / release notes for Software Construction Toolkit
 
 ------------------------------------------------------------------------------
+Version 0.1.2           2009-03-13
+
+  Changes:
+
+    * $CCFLAGS_OPTIMIZED on Mac now uses -Os instead of -O2, to match XCode.
+    * Renamed code_coverage_instrument_path.py to code_coverage_path_test.py
+      (all tests should have the _test suffix, to be compatible with some code
+      coverage utilities).
+    * Added --usage-log option to write an XML file containing configuration
+      and timing information.  Useful for benchmarking performance changes to
+      Software Construction Toolkit and SCons.
+    * Modified bin/runtest.py to support testing modules in site_scons/.
+
+------------------------------------------------------------------------------
 Version 0.1.1           2009-03-02
 
   Changes:
+
     * Added -F option to runtest.py; fixes code coverage break caused by 0.1.0
       changes to support spaces in paths.
     * env.ComponentLibrary() publishes a 'link' resource, which is the
