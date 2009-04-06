@@ -93,7 +93,9 @@ expected_xml_win = """<?xml version="1.0" encoding="UTF-8"?>
     </target_group>
     <target_group name="all_programs">
       <build_target name="hello">
-        <target_mode name="dbg"/>
+        <target_mode name="dbg">
+          <target_property name="TARGET_PATH" value="hello.exe"/>
+        </target_mode>
       </build_target>
     </target_group>
   </target_groups>

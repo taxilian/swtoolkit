@@ -47,11 +47,13 @@ def TestSConstruct(scons_globals):
 
   env = Environment(tools=['command_output'])
 
-  # Make sure python is in the path
-  env.AppendENVPath('PATH', env.File(sys.executable).dir.abspath)
+  # Make sure python is in the path, and set $PYTHON='python' so output will
+  # compare exactly.
+  env.PrependENVPath('PATH', env.File(sys.executable).dir.abspath)
+  env.Replace(PYTHON='python',
+              COMMAND_OUTPUT_CMDLINE='python $SOURCE')
 
   # Need to run our python program
-  env['COMMAND_OUTPUT_CMDLINE'] = 'python $SOURCE'
   helloprog = env.File('hello.py')
 
   # Simple command
@@ -89,7 +91,8 @@ def TestSConstruct(scons_globals):
   # first to make comparison easier.
   env3['ENV']['PATH'] = ''
   env3['ENV']['LD_LIBRARY_PATH'] = ''
-  env3['PYTHON'] = env.File(sys.executable)
+  # Need to explicitly specify python, since we won't find it in the path
+  env3['PYTHON'] = sys.executable
   env3.CommandOutput('out6.txt', [], COMMAND_OUTPUT_RUN_DIR=subdir,
                      COMMAND_OUTPUT_CMDLINE='$PYTHON hello2.py')
 
@@ -122,12 +125,46 @@ while True:
   pass
 """
 
+expect_stdout145 = """scons: Reading SConscript files ...
+scons: done reading SConscript files.
+scons: Building targets ...
+Output "python hello.py" to out1.txt
+Hello, world!  argc=1
+
+Output "python hello.py" to out4.txt
+Output "python hello.py" to out5.txt
+scons: done building targets.
+"""
+
+expect_stdout2 = """scons: Reading SConscript files ...
+scons: done reading SConscript files.
+scons: Building targets ...
+Output "nosuch.exe" to out2.txt
+scons: building terminated because of errors.
+"""
+
+expect_stdout3 = """scons: Reading SConscript files ...
+scons: done reading SConscript files.
+scons: Building targets ...
+Output "python hello.py 3" to out3.txt
+scons: building terminated because of errors.
+"""
+
+expect_stdout7 = """scons: Reading SConscript files ...
+scons: done reading SConscript files.
+scons: Building targets ...
+Output "python hello3.py" to out7.txt
+*** RunCommand() timeout: python hello3.py
+
+scons: building terminated because of errors.
+"""
+
 
 def main():
   test = TestFramework.TestFramework()
 
   # TODO: get this to work on windows and linux under coverage.
-  if os.environ.get('COVERAGE_HOOK') and sys.platform not in ['darwin']:
+  if os.environ.get('COVERAGE_HOOK') and sys.platform in ('linux', 'linux2'):
     msg = 'Platform %s cannot run this test during coverage currently.\n'
     test.skip_test(msg % repr(sys.platform))
     return
@@ -144,50 +181,21 @@ def main():
 
   # Run build steps which should pass
   test.run(chdir=base, options='out1.txt out4.txt out5.txt',
-           stdout="""\
-scons: Reading SConscript files ...
-scons: done reading SConscript files.
-scons: Building targets ...
-Output "python hello.py" to out1.txt
-Hello, world!  argc=1
-
-Output "python hello.py" to out4.txt
-Output "python hello.py" to out5.txt
-scons: done building targets.
-""")
+           stdout=expect_stdout145)
 
   # Run build steps which should cause errors
   # Use match.re for the non-existent file test, since the error code is
   # different between platforms.
   test.run(chdir=base, options='out2.txt', match=test.match_re,
-           stdout="""\
-scons: Reading SConscript files ...
-scons: done reading SConscript files.
-scons: Building targets ...
-Output "nosuch.exe" to out2.txt
-scons: building terminated because of errors.
-""", stderr='scons: \*\*\* \[out2.txt\] Error [0-9]+\n', status=2)
+           stdout=expect_stdout2,
+           stderr='scons: \*\*\* \[out2.txt\] Error [0-9]+\n', status=2)
 
-  test.run(chdir=base, options='out3.txt',
-           stdout="""\
-scons: Reading SConscript files ...
-scons: done reading SConscript files.
-scons: Building targets ...
-Output "python hello.py 3" to out3.txt
-scons: building terminated because of errors.
-""", stderr='scons: *** [out3.txt] Error 3\n', status=2)
+  test.run(chdir=base, options='out3.txt', stdout=expect_stdout3,
+           stderr='scons: *** [out3.txt] Error 3\n', status=2)
 
   # Test timeout
-  test.run(chdir=base, options='out7.txt',
-           stdout="""\
-scons: Reading SConscript files ...
-scons: done reading SConscript files.
-scons: Building targets ...
-Output "python hello3.py" to out7.txt
-*** RunCommand() timeout: python hello3.py
-
-scons: building terminated because of errors.
-""", stderr='scons: *** [out7.txt] Error 42\n', status=2)
+  test.run(chdir=base, options='out7.txt', stdout=expect_stdout7,
+           stderr='scons: *** [out7.txt] Error 42\n', status=2)
 
   # Run build which runs command in a subdir
   test.run(chdir=base, options='out6.txt')

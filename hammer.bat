@@ -56,18 +56,14 @@
 
 setlocal
 
-:: Preserve a copy of the PATH (in case we need it later, mainly for cygwin).
-set PRESCONS_PATH=%PATH%
-
-:: Assume SCONS_DIR has been set
-set PYTHONPATH=%SCONS_DIR%
+:: Append SCONS_DIR to the python path
+set PYTHONPATH=%PYTHONPATH%;%SCONS_DIR%
 
 :: Specify site_scons directories
 set HAMMER_OPTS=%HAMMER_OPTS% --site-dir="%~dp0site_scons"
 
 :: Run SCons via software construction toolkit wrapper.
-:: Remove -O and -OO from the following line to make asserts execute
-set HAMMER_CMD=python -x -O -OO%COVERAGE_HOOK% "%~dp0wrapper.py" %HAMMER_OPTS% %*
+set HAMMER_CMD=python -x %COVERAGE_HOOK% "%~dp0wrapper.py" %HAMMER_OPTS% %*
 
 :: ============================================================================
 :: Incredibuild support

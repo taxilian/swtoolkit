@@ -43,98 +43,19 @@
 #                      in addition to any specified on the
 #                      command line.
 #
-# Environment variables used for IncrediBuild (Xoreax Grid
-# Engine) support (only available under cygwin):
-#   HAMMER_XGE         If set to 1, enable IncrediBuild
-#   HAMMER_XGE_PATH    Path to IncrediBuild install.  Required
-#                      if it was not installed in the default
-#                      location:
-#                      (%ProgramFiles%\Xoreax\IncrediBuild).
-#   HAMMER_XGE_OPTS    Additional options to pass to IncrediBuild.
-#
 # Sample values for HAMMER_OPTS:
-#   -j %NUMBER_OF_PROCESSORS%             # on Windows
 #   -j $(sysctl -n hw.logicalcpu)         # on Mac OS X
 #   -j $(grep -c processor /proc/cpuinfo) # on Linux
 #      Run parallel builds on all processor cores, unless
 #      explicitly overridden on the command line.
 #   -j12
 #      Always run 12 builds in parallel; a good default if
-#      HAMMER_XGE=1 or when using distcc.
+#      using distcc.
 #   -s -k
 #      Don't print commands; keep going on build failures.
 
-case $OSTYPE in
-  cygwin*)
-      function sct_hammer() {
-        local sct_dir="$(dirname -- "${0}")"
+export SCT_DIR="$(dirname -- "${0}")"
+export PYTHONPATH="PYTHONPATH:$SCONS_DIR"
 
-        # Invoke scons via the software construction toolkit wrapper.
-        # NOTE: Remove -O and -OO from the following to make
-        # asserts execute.
-        local hammer_cmd=("python"
-                          "-O" "-OO"
-                          "$COVERAGE_HOOK"
-                          "\"$sct_dir/wrapper.py\""
-                          "$HAMMER_OPTS"
-                          "--site-dir=\"$sct_dir/site_scons\"")
-
-        if [[ $HAMMER_XGE == 1 ]]; then
-          local xge_path=$(cygpath -u -a "$PROGRAMFILES/Xoreax/IncrediBuild")
-          if [[ ! -x "$xge_path/xgConsole.exe" ]]; then
-            echo "Warning: xgConsole.exe not found in '$xge_path'"
-            echo "NOT using IncrediBuild."
-          else
-            new_path="$new_path:$xge_path"
-            hammer_cmd=("XGConsole.exe"
-                        "$HAMMER_XGE_OPTS"
-                        "/command='${hammer_cmd[@]}'")
-          fi
-        fi
-
-        local pythonpath="$SCONS_DIR"
-
-        local cmd=('PWD=$(cygpath -m -a .)'
-          'SHELL=$(cygpath -w -a $SHELL)'
-          "PATH=\"$new_path\""
-          "PYTHONPATH=\"$pythonpath\""
-          "${hammer_cmd[@]}"
-          "$@")
-        if [[ ${SCT_WRAPPER_OPTS##*--verbose} != $SCT_WRAPPER_OPTS ]]; then
-          echo "${cmd[@]}"
-        fi
-        eval "${cmd[@]}"
-      }
-      ;;
-  darwin*|linux*)
-      function sct_hammer() {
-        local sct_dir="$(dirname -- "${0}")"
-        local pythonpath="$SCONS_DIR"
-        pythonpath="$pythonpath:$SCONS_DIR/scons-local"
-
-        # Invoke scons via the software construction toolkit wrapper.
-        # NOTE: Remove -O and -OO from the following to make
-        # asserts execute.
-        local cmd=("PYTHONPATH=\"$pythonpath\""
-                   'python'
-                   '-O' '-OO'
-                   "$COVERAGE_HOOK"
-                   "\"${sct_dir}/wrapper.py\""
-                   "$HAMMER_OPTS"
-                   "--site-dir=\"${sct_dir}/site_scons\""
-                   "$@")
-        if [[ ${SCT_WRAPPER_OPTS##*--verbose} != $SCT_WRAPPER_OPTS ]]; then
-          echo "${cmd[@]}"
-        fi
-        eval "${cmd[@]}"
-      }
-  ;;
-esac
-
-# Only execute this block if we are NOT sourcing this file (i.e. if we
-# invoke this file as a script, then run this, if we are only
-# interested in defining the functions for our bash environment, then
-# we don't run this).
-if [[ -z $PS1 ]]; then
-  sct_hammer "$@"
-fi
+# Invoke scons via the software construction toolkit wrapper.
+python $COVERAGE_HOOK "${SCT_DIR}/wrapper.py" $HAMMER_OPTS --site-dir="${SCT_DIR}/site_scons" "$@"

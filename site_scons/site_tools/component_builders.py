@@ -470,7 +470,7 @@ def ComponentProgram(self, prog_name, *args, **kwargs):
   env._StoreComponents(prog_name)
 
   # Let component_targets know this target is available in the current mode
-  env.SetTargetProperty(prog_name)
+  env.SetTargetProperty(prog_name, TARGET_PATH=out_nodes[0])
 
   # Set up deferred call to replicate resources
   env.Defer(ComponentProgramDeferred)

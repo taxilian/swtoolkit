@@ -249,10 +249,13 @@ class DeferTests(unittest.TestCase):
     env = self.env
     env.Defer(Sub2)
     env.Defer(Sub3, after=Sub2)
+
+    # Make sure PrintDefer() at least doesn't crash.
+    env.PrintDefer()
+
     env.ExecuteDefer()
     self.assertEqual(self.call_list, [2, 1, 3])
 
-  # TODO: Test PrintDefer()
 
 #------------------------------------------------------------------------------
 

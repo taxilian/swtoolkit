@@ -130,6 +130,7 @@ def RunCommand(cmdargs, cwdir=None, env=None, echo_output=True, timeout=None,
     """
     read_run = True
     while read_run:
+      time.sleep(.1)       # So we don't poll too frequently
       # Need to have a delay of 1 cycle between child completing and
       # thread exit, to pick up the final output from the child.
       if child_retcode is not None:
@@ -141,11 +142,12 @@ def RunCommand(cmdargs, cwdir=None, env=None, echo_output=True, timeout=None,
         child_out.append(new_out)
 
   read_thread = threading.Thread(target=_ReadThread)
+  read_thread.setDaemon(True)
   read_thread.start()
 
   # Wait for child to exit or timeout
   while child_retcode is None:
-    time.sleep(1)       # So we don't poll too frequently
+    time.sleep(.1)       # So we don't poll too frequently
     child_retcode = child.poll()
     if timeout and child_retcode is None:
       elapsed = time.time() - start_time
@@ -154,11 +156,11 @@ def RunCommand(cmdargs, cwdir=None, env=None, echo_output=True, timeout=None,
         KillProcessTree(child.pid)
         child_retcode = timeout_errorlevel
 
-  # Wait for worker thread to pick up final output and die
+  # Wait a bit for worker thread to pick up final output and die.  No need to
+  # worry if it's still alive at the end of this, since it's a daemon thread
+  # and won't block python from exiting.  (And since it's blocked, it doesn't
+  # chew up CPU.)
   read_thread.join(5)
-  if read_thread.isAlive():
-    print '*** Error: RunCommand() read thread did not exit.'
-    sys.exit(1)
 
   if echo_output:
     print   # end last line of output

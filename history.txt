@@ -1,6 +1,21 @@
 History / release notes for Software Construction Toolkit
 
 ------------------------------------------------------------------------------
+Version 0.9.0           2009-04-06
+
+  Changes:
+
+    * Added more test coverage, including new test for seven_zip tool.
+    * Refactored command_output tool for more reliable operation.
+    * Simplified hammer.sh.  No longer defines local functions.
+    * Hammer.bat and hammer.sh now append to PATH and PYTHONPATH instead of
+      replacing them.  More compatible with locally installed tools.
+    * Remove -O -OO options from python command line; asserts in SConscripts
+      and tools will now execute.
+    * env.ComponentProgram() now sets TARGET_PATH target property; matches
+      other builders.
+
+------------------------------------------------------------------------------
 Version 0.1.2           2009-03-13
 
   Changes:
