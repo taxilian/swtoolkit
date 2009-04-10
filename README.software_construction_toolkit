@@ -58,6 +58,9 @@ up a SCONS_DIR environment variable to point to the directory containing SCons.
     * For a normal SCons install, this is the engine subdir.
     * For a scons-local install, this is the . subdir.
     * For a scons-src install, this is the src/engine subdir.
+    * For a Windows install of SCons which used a .exe or .msi installer, SCons
+      may be installed in a subdirectory of the Python directory. For example,
+      C:\Python24\Lib\site-packages\scons-1.2.0.
 
 If you are modifying Software Construction Toolkit and need to run the unit
 tests, set up a SCONS_DEV_DIR environment variable to point to the directory
