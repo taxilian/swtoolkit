@@ -55,7 +55,7 @@
 #      Don't print commands; keep going on build failures.
 
 export SCT_DIR="$(dirname -- "${0}")"
-export PYTHONPATH="$PYTHONPATH:$SCONS_DIR"
+export PYTHONPATH="$SCONS_DIR"
 
 # Invoke scons via the software construction toolkit wrapper.
 python $COVERAGE_HOOK "${SCT_DIR}/wrapper.py" $HAMMER_OPTS --site-dir="${SCT_DIR}/site_scons" "$@"
