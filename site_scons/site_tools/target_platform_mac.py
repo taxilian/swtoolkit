@@ -121,6 +121,12 @@ def generate(env):
   # NOTE: SCons requires the use of this name, which fails gpylint.
   """SCons entry point for this tool."""
 
+  # Preserve some variables that get blown away by the tools.
+  saved = dict()
+  for k in ['CFLAGS', 'CCFLAGS', 'CXXFLAGS', 'LINKFLAGS', 'LIBS']:
+    saved[k] = env.get(k, [])
+    env[k] = []
+
   # Use g++
   env.Tool('g++')
   env.Tool('gcc')
@@ -203,3 +209,6 @@ def generate(env):
 
   # Add our target groups
   AddTargetGroup('all_bundles', 'bundles can be built')
+
+  # Restore saved flags.
+  env.Append(**saved)

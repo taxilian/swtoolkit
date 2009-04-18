@@ -265,6 +265,12 @@ def generate(env):
   # This appears to be SCons issue 1720 manifesting itself on Mac when using
   # windows tools like msvs or msvc.
 
+  # Preserve some variables that get blown away by the tools.
+  saved = dict()
+  for k in ['CFLAGS', 'CCFLAGS', 'CXXFLAGS', 'LINKFLAGS', 'LIBS']:
+    saved[k] = env.get(k, [])
+    env[k] = []
+
   # Bring in the outside PATH, INCLUDE, and LIB if not blocked.
   if not env.get('MSVC_BLOCK_ENVIRONMENT_CHANGES'):
     env.AppendENVPath('PATH', os.environ.get('PATH', '[]'))
@@ -397,3 +403,6 @@ def generate(env):
   # hack into the existing action and override its command string.
   if env['PLATFORM'] != 'darwin':
     env['SHLINKCOM'].list[0].cmdstr = '$SHLINKCOMSTR'
+
+  # Restore saved flags.
+  env.Append(**saved)

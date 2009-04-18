@@ -56,6 +56,12 @@ def generate(env):
   # NOTE: SCons requires the use of this name, which fails gpylint.
   """SCons entry point for this tool."""
 
+  # Preserve some variables that get blown away by the tools.
+  saved = dict()
+  for k in ['CFLAGS', 'CCFLAGS', 'CXXFLAGS', 'LINKFLAGS', 'LIBS']:
+    saved[k] = env.get(k, [])
+    env[k] = []
+
   # Use g++
   env.Tool('g++')
   env.Tool('gcc')
@@ -98,3 +104,6 @@ def generate(env):
       COMPONENT_LIBRARY_LINK_SUFFIXES=['.so', '.a'],
       COMPONENT_LIBRARY_DEBUG_SUFFIXES=[],
   )
+
+  # Restore saved flags.
+  env.Append(**saved)
