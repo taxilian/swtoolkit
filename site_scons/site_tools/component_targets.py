@@ -165,14 +165,14 @@ def GetTargets():
   return __targets
 
 
-def SetTargetProperty(self, target_name, all_modes=False, **kwargs):
+def SetTargetProperty(env, target_name, all_modes=False, **kwargs):
   """Sets one or more properties for a target.
 
   Args:
-    self: Environment context.
+    env: Environment context.
     target_name: Name of the target.
     all_modes: If True, property applies to all modes.  If false, it applies
-        only to the current mode (determined by self['BUILD_TYPE']).
+        only to the current mode (determined by env['BUILD_TYPE']).
     kwargs: Keyword args are used to set properties.  Properties will be
         converted to strings via env.subst().
 
@@ -189,14 +189,14 @@ def SetTargetProperty(self, target_name, all_modes=False, **kwargs):
   if all_modes:
     add_to_dict = target.properties
   else:
-    mode = self.get('BUILD_TYPE')
+    mode = env.get('BUILD_TYPE')
     if mode not in target.mode_properties:
       target.mode_properties[mode] = {}
     add_to_dict = target.mode_properties[mode]
 
   # Add values
   for k, v in kwargs.items():
-    add_to_dict[k] = self.subst(str(v))
+    add_to_dict[k] = env.subst(str(v))
 
 
 def AddTargetHelp():
@@ -224,15 +224,15 @@ def AddTargetHelp():
   SCons.Script.Help(help_text)
 
 
-def SetTargetDescription(self, target_name, description):
+def SetTargetDescription(env, target_name, description):
   """Convenience function to set a target's global DESCRIPTION property.
 
   Args:
-    self: Environment context.
+    env: Environment context.
     target_name: Name of the target.
     description: Description of the target.
   """
-  self.SetTargetProperty(target_name, all_modes=True, DESCRIPTION=description)
+  env.SetTargetProperty(target_name, all_modes=True, DESCRIPTION=description)
 
 
 def AddTargetMode(env):

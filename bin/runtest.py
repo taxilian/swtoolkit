@@ -246,16 +246,12 @@ def main():
   cwd = os.getcwd()
   test_dir = os.path.join(cwd, "test")
 
-  pythonpaths = [
+  pythonpaths = sys.path + [
       os.path.join(cwd, "lib"),
       os.path.join(cwd, "site_scons"),
       os.path.join(scons_dev_dir, "QMTest"),
       scons_dir,
   ]
-
-  old_pythonpath = os.environ.get("PYTHONPATH")
-  if old_pythonpath:
-    pythonpaths.append(old_pythonpath)
 
   os.environ["PYTHONPATH"] = os.pathsep.join(pythonpaths)
   os.environ["SCONS_DIR"] = scons_dir

@@ -285,11 +285,11 @@ def ComponentVSProjectBuilder(target, source, env):
   return 0
 
 
-def ComponentVSProject(self, target_name, **kwargs):
+def ComponentVSProject(env, target_name, **kwargs):
   """Visual Studio project pseudo-builder for the specified target.
 
   Args:
-    self: Environment context.
+    env: Environment context.
     target_name: Name of the target.
     kwargs: Optional keyword arguments override environment variables in the
         derived environment used to create the project.
@@ -302,7 +302,7 @@ def ComponentVSProject(self, target_name, **kwargs):
     return []
 
   # Clone environment and add keyword args
-  env = self.Clone()
+  env = env.Clone()
   for k, v in kwargs.items():
     env[k] = v
 
@@ -512,11 +512,11 @@ def ComponentVSSourceProjectBuilder(target, source, env):
   return 0
 
 
-def ComponentVSSourceProject(self, project_name, target_names, **kwargs):
+def ComponentVSSourceProject(env, project_name, target_names, **kwargs):
   """Visual Studio source project pseudo-builder.
 
   Args:
-    self: Environment context.
+    env: Environment context.
     project_name: Name of the project.
     target_names: List of target names to include source for.
     kwargs: Optional keyword arguments override environment variables in the
@@ -530,7 +530,7 @@ def ComponentVSSourceProject(self, project_name, target_names, **kwargs):
     return []
 
   # Clone environment and add keyword args
-  env = self.Clone()
+  env = env.Clone()
   for k, v in kwargs.items():
     env[k] = v
 
@@ -642,11 +642,11 @@ def ComponentVSDirProjectBuilder(target, source, env):
   return 0
 
 
-def ComponentVSDirProject(self, project_name, source, **kwargs):
+def ComponentVSDirProject(env, project_name, source, **kwargs):
   """Visual Studio directory project pseudo-builder.
 
   Args:
-    self: Environment context.
+    env: Environment context.
     project_name: Name of the project.
     source: List of source files and/or directories.
     kwargs: Optional keyword arguments override environment variables in the
@@ -660,7 +660,7 @@ def ComponentVSDirProject(self, project_name, source, **kwargs):
     return []
 
   # Clone environment and add keyword args
-  env = self.Clone()
+  env = env.Clone()
   for k, v in kwargs.items():
     env[k] = v
 
@@ -817,12 +817,12 @@ def ComponentVSSolutionBuilder(target, source, env):
   return 0
 
 
-def ComponentVSSolution(self, solution_name, target_names, projects=None,
+def ComponentVSSolution(env, solution_name, target_names, projects=None,
                         **kwargs):
   """Visual Studio solution pseudo-builder.
 
   Args:
-    self: Environment context.
+    env: Environment context.
     solution_name: Name of the solution.
     target_names: Names of targets or target groups to include in the solution.
         This will automatically build projects for them.
@@ -847,7 +847,7 @@ def ComponentVSSolution(self, solution_name, target_names, projects=None,
     return []
 
   # Clone environment and add keyword args
-  env = self.Clone()
+  env = env.Clone()
   for k, v in kwargs.items():
     env[k] = v
 

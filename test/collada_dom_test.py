@@ -30,7 +30,6 @@
 
 """Test for atlmfc_vc80.  These are MEDIUM tests."""
 
-import sys
 import TestFramework
 
 
@@ -47,10 +46,10 @@ def TestSConstruct(scons_globals):
 
   # Make sure including the tool doesn't cause a failure on any platform
   # Run hermetically
-  env1 = env.Clone(COLLADA_DIR = '.')
+  env1 = env.Clone(COLLADA_DIR='.')
   env1.Tool('collada_dom')
   # Run non-hermetically
-  env2 = env.Clone(COLLADA_DIR = None)
+  env2 = env.Clone(COLLADA_DIR=None)
   env2.Tool('collada_dom')
 
 

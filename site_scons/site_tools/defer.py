@@ -32,7 +32,6 @@
 
 
 import os
-import sys
 import types
 import SCons.Errors
 
@@ -75,11 +74,11 @@ class DeferGroup:
     return c
 
 
-def SetDeferRoot(self):
+def SetDeferRoot(env):
   """Sets the current environment as the root environment for defer.
 
   Args:
-    self: Current environment context.
+    env: Current environment context.
 
   Functions deferred by environments cloned from the root environment (that is,
   function deferred by children of the root environment) will be executed when
@@ -91,27 +90,27 @@ def SetDeferRoot(self):
   (Otherwise, they would have no way to determine the root environment.)
   """
   # Set the current environment as the root for holding defer groups
-  self['_DEFER_ROOT_ENV'] = self
+  env['_DEFER_ROOT_ENV'] = env
 
   # Deferred functions this environment got from its parents will be run in the
   # new root context.
-  for group in GetDeferGroups(self).values():
-    new_list = [(func, self, cwd) for (func, env, cwd) in group.func_env_cwd]
+  for group in GetDeferGroups(env).values():
+    new_list = [(func, env, cwd) for (func, fenv, cwd) in group.func_env_cwd]
     group.func_env_cwd = new_list
 
 
-def GetDeferRoot(self):
+def GetDeferRoot(env):
   """Returns the root environment for defer.
 
   Args:
-    self: Current environment context.
+    env: Current environment context.
 
   Returns:
     The root environment for defer.  If one of this environment's parents
     called SetDeferRoot(), returns that environment.  Otherwise returns the
     current environment.
   """
-  return self.get('_DEFER_ROOT_ENV', self)
+  return env.get('_DEFER_ROOT_ENV', env)
 
 
 def GetDeferGroups(env):
@@ -126,11 +125,11 @@ def GetDeferGroups(env):
   return env.GetDeferRoot()['_DEFER_GROUPS']
 
 
-def ExecuteDefer(self):
+def ExecuteDefer(env):
   """Executes deferred functions.
 
   Args:
-    self: Current environment context.
+    env: Current environment context.
   """
   # Check for re-entrancy
   global _execute_defer_context
@@ -142,13 +141,13 @@ def ExecuteDefer(self):
 
   # If defer root is set and isn't this environment, we're being called from a
   # sub-environment.  That's not where we should be called.
-  if self.GetDeferRoot() != self:
+  if env.GetDeferRoot() != env:
     print ('Warning: Ignoring call to ExecuteDefer() from child of the '
            'environment passed to SetDeferRoot().')
     return
 
   # Get list of defer groups from ourselves.
-  defer_groups = GetDeferGroups(self)
+  defer_groups = GetDeferGroups(env)
 
   # Loop through deferred functions
   try:
@@ -167,9 +166,9 @@ def ExecuteDefer(self):
 
         if group.func_env_cwd:
           # Run all the functions in our named group
-          for func, env, cwd in group.func_env_cwd:
+          for func, fenv, cwd in group.func_env_cwd:
             os.chdir(cwd)
-            func(env)
+            func(fenv)
 
         # The defer groups have been altered, so restart the search for
         # functions that can be executed.
@@ -189,16 +188,16 @@ def ExecuteDefer(self):
   os.chdir(oldcwd)
 
 
-def PrintDefer(self, print_functions=True):
+def PrintDefer(env, print_functions=True):
   """Prints the current defer dependency graph.
 
   Args:
-    self: Environment in which PrintDefer() was called.
+    env: Environment in which PrintDefer() was called.
     print_functions: Print individual functions in defer groups.
   """
   # Get the defer dict
   # Get list of defer groups from ourselves.
-  defer_groups = GetDeferGroups(self)
+  defer_groups = GetDeferGroups(env)
   dgkeys = defer_groups.keys()
   dgkeys.sort()
   for k in dgkeys:
@@ -212,15 +211,15 @@ def PrintDefer(self, print_functions=True):
         print ' |   +- %s' % a
     if print_functions and group.func_env_cwd:
       print '    functions'
-      for func, env, cwd in group.func_env_cwd:
+      for func, fenv, cwd in group.func_env_cwd:
         print ' |   +- %s %s' % (func.__name__, cwd)
 
 
-def Defer(self, *args, **kwargs):
+def Defer(env, *args, **kwargs):
   """Adds a deferred function or modifies defer dependencies.
 
   Args:
-    self: Environment in which Defer() was called
+    env: Environment in which Defer() was called
     args: Positional arguments
     kwargs: Named arguments
 
@@ -273,7 +272,7 @@ def Defer(self, *args, **kwargs):
 
   # Get list of names and/or functions this function should defer until after
   after = []
-  for a in self.Flatten(kwargs.get('after')):
+  for a in env.Flatten(kwargs.get('after')):
     if isinstance(a, str):
       # TODO: Should check if '$' in a, and if so, subst() it and recurse into
       # it.
@@ -285,14 +284,14 @@ def Defer(self, *args, **kwargs):
       raise ValueError('Defer after=%r is not a function or name' % a)
 
   # Find the deferred function
-  defer_groups = GetDeferGroups(self)
+  defer_groups = GetDeferGroups(env)
   if name not in defer_groups:
     defer_groups[name] = DeferGroup()
   group = defer_groups[name]
 
   # If we were given a function, also save environment and current directory
   if func:
-    group.func_env_cwd.append((func, self, os.getcwd()))
+    group.func_env_cwd.append((func, env, os.getcwd()))
 
   # Add dependencies for the function
   group.after.update(after)
@@ -303,7 +302,7 @@ def Defer(self, *args, **kwargs):
   # after a() and a() calls Defer() to defer c(), then b() must also defer
   # until after c().
   if _execute_defer_context and name != _execute_defer_context:
-    for other_name, other_group in GetDeferGroups(self).items():
+    for other_name, other_group in GetDeferGroups(env).items():
       if other_name == name:
         continue        # Don't defer after ourselves
       if _execute_defer_context in other_group.after:

@@ -32,7 +32,6 @@
 
 
 import sys
-import SCons.Script
 
 
 def Solution(env, solution_name,

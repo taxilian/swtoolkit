@@ -52,6 +52,7 @@ def GatherInputs(env, target, groups=['.*'], exclude_pattern=None):
      For example:
        [['bob.c', 'jim.c'], ['bob.h', 'jim.h']]
   """
+  env = env  # silence gpylint
 
   # Compile exclude pattern if any
   if exclude_pattern:

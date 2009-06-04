@@ -76,7 +76,7 @@ def _GetNaclSdkRoot(env, sdk_mode):
       return '/usr/local/nacl-sdk'
 
   elif sdk_mode == 'download':
-    return ('$THIRD_PARTY/nacl_sdk/' +
+    return ('$MAIN_DIR/../third_party/nacl_sdk/' +
             NACL_PLATFORM_DIR_MAP[env['PLATFORM']] + '/sdk/nacl-sdk')
 
   elif sdk_mode.startswith('custom:'):
@@ -100,7 +100,7 @@ def _DownloadSdk(env):
     __builtin__.nacl_sdk_downloaded = True
 
   # Get path to extract to.
-  target = env.subst('$THIRD_PARTY/nacl_sdk/' +
+  target = env.subst('$MAIN_DIR/../third_party/nacl_sdk/' +
                      NACL_PLATFORM_DIR_MAP[env['PLATFORM']])
 
   # Set NATIVE_CLIENT_SDK_PLATFORM before substitution.
@@ -112,10 +112,10 @@ def _DownloadSdk(env):
   else:
     # Pick download url.
     url = [
-        env.subst(
-            '$NATIVE_CLIENT_SDK_URL',
-            'http://nativeclient.googlecode.com/files/'
-            'nacl_${NATIVE_CLIENT_SDK_PLATFORM}_latest.tgz'),
+        env.subst(env.get(
+            'NATIVE_CLIENT_SDK_URL',
+            'http://nativeclient.googlecode.com/svn/data/sdk_tarballs/'
+            'naclsdk_${NATIVE_CLIENT_SDK_PLATFORM}.tgz')),
         env.get('NATIVE_CLIENT_SDK_USERNAME'),
         env.get('NATIVE_CLIENT_SDK_PASSWORD'),
     ]
@@ -138,7 +138,9 @@ def _ValidateSdk(env, sdk_mode):
   # Check if stdio.h is present as a cheap check for the sdk.
   if not os.path.exists(env.subst('$NACL_SDK_ROOT/nacl/include/stdio.h')):
     sys.stderr.write('NativeClient SDK not present in %s\n'
-                     'Run again with the --download flag.\n' %
+                     'Run again with the --download flag\n'
+                     'and the naclsdk_mode=download option,\n'
+                     'or build the SDK yourself.\n' %
                      env.subst('$NACL_SDK_ROOT'))
     sys.exit(1)
 

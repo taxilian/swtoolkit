@@ -34,8 +34,6 @@ This module is a SCons tool which should be include in the topmost windows
 environment.  It is usually included by the target_platform_windows tool.
 """
 
-
-import os
 import stat
 import sys
 import SCons

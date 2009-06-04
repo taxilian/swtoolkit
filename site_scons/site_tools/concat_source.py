@@ -67,27 +67,27 @@ def ConcatSourceBuilder(target, source, env):
   output_file.close()
 
 
-def ConcatSourcePseudoBuilder(self, target, source):
+def ConcatSourcePseudoBuilder(env, target, source):
   """ConcatSource pseudo-builder; calls builder or passes through source nodes.
 
   Args:
-    self: Environment in which to build
+    env: Environment in which to build
     target: List of target nodes
     source: List of source nodes
 
   Returns:
-    If self['CONCAT_SOURCE_ENABLE'], calls self.ConcatSource and returns
+    If env['CONCAT_SOURCE_ENABLE'], calls env.ConcatSource and returns
     the list of target nodes.  Otherwise, returns the list of source nodes.
     Source nodes which are not CPP files are passed through unchanged to the
     list of output nodes.
   """
-  if self.get('CONCAT_SOURCE_ENABLE', True):
+  if env.get('CONCAT_SOURCE_ENABLE', True):
     # Scan down source list and separate CPP sources (which we concatenate)
     # from other files (which we pass through).
     cppsource = []
     outputs = []
-    suffixes = self.Flatten(self.subst_list('$CONCAT_SOURCE_SUFFIXES'))
-    for source_file in self.arg2nodes(source):
+    suffixes = env.Flatten(env.subst_list('$CONCAT_SOURCE_SUFFIXES'))
+    for source_file in env.arg2nodes(source):
       if source_file.suffix in suffixes:
         cppsource.append(source_file)
       else:
@@ -95,7 +95,7 @@ def ConcatSourcePseudoBuilder(self, target, source):
 
     if len(cppsource) > 1:
       # More than one file, so concatenate them together
-      outputs += self.ConcatSourceBuilder(target, cppsource)
+      outputs += env.ConcatSourceBuilder(target, cppsource)
     else:
       # <2 files, so pass them through; no need for a ConcatSource target
       outputs += cppsource
@@ -111,8 +111,8 @@ def generate(env):
 
   # Add the builder
   action = SCons.Script.Action(ConcatSourceBuilder, '$CONCAT_SOURCE_COMSTR',
-                               varlist = ['CONCAT_SOURCE_SUFFIXES'])
-  builder = SCons.Script.Builder(action = action, suffix = '$CXXFILESUFFIX')
+                               varlist=['CONCAT_SOURCE_SUFFIXES'])
+  builder = SCons.Script.Builder(action=action, suffix='$CXXFILESUFFIX')
   env.Append(BUILDERS={'ConcatSourceBuilder': builder})
 
   env.SetDefault(

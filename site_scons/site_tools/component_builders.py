@@ -79,11 +79,11 @@ def _RetrieveComponents(component_name, filter_components=None):
   return list(components)
 
 
-def _StoreComponents(self, component_name):
+def _StoreComponents(env, component_name):
   """Stores the list of child components for the specified component.
 
   Args:
-    self: Environment containing component.
+    env: Environment containing component.
     component_name: Name of the component.
 
   Adds component references based on the LIBS and COMPONENTS variables in the
@@ -94,7 +94,7 @@ def _StoreComponents(self, component_name):
 
   components = set()
   for clist in ('LIBS', 'COMPONENTS'):
-    components.update(map(self.subst, self.Flatten(self[clist])))
+    components.update(map(env.subst, env.Flatten(env[clist])))
 
   if component_name not in __component_list:
     __component_list[component_name] = set()
@@ -158,11 +158,11 @@ def ComponentPackageDeferred(env):
   env.Alias(package_name, all_outputs)
 
 
-def ComponentPackage(self, package_name, dest_dir, **kwargs):
+def ComponentPackage(env, package_name, dest_dir, **kwargs):
   """Pseudo-builder for package containing other components.
 
   Args:
-    self: Environment in which we were called.
+    env: Environment in which we were called.
     package_name: Name of package.
     dest_dir: Destination directory for package.
     kwargs: Keyword arguments.
@@ -171,7 +171,7 @@ def ComponentPackage(self, package_name, dest_dir, **kwargs):
     The alias node for the package.
   """
   # Clone and modify environment
-  env = _ComponentPlatformSetup(self, 'ComponentPackage', **kwargs)
+  env = _ComponentPlatformSetup(env, 'ComponentPackage', **kwargs)
 
   env.Replace(
       PACKAGE_NAME=package_name,
@@ -198,11 +198,11 @@ def ComponentPackage(self, package_name, dest_dir, **kwargs):
 #------------------------------------------------------------------------------
 
 
-def ComponentObject(self, *args, **kwargs):
+def ComponentObject(env, *args, **kwargs):
   """Pseudo-builder for object to handle platform-dependent type.
 
   Args:
-    self: Environment in which we were called.
+    env: Environment in which we were called.
     args: Positional arguments.
     kwargs: Keyword arguments.
 
@@ -213,7 +213,7 @@ def ComponentObject(self, *args, **kwargs):
   inputs and return a list of outputs?
   """
   # Clone and modify environment
-  env = _ComponentPlatformSetup(self, 'ComponentObject', **kwargs)
+  env = _ComponentPlatformSetup(env, 'ComponentObject', **kwargs)
 
   # Make appropriate object type
   if env.get('COMPONENT_STATIC'):
@@ -229,11 +229,11 @@ def ComponentObject(self, *args, **kwargs):
 #------------------------------------------------------------------------------
 
 
-def ComponentLibrary(self, lib_name, *args, **kwargs):
+def ComponentLibrary(env, lib_name, *args, **kwargs):
   """Pseudo-builder for library to handle platform-dependent type.
 
   Args:
-    self: Environment in which we were called.
+    env: Environment in which we were called.
     lib_name: Library name.
     args: Positional arguments.
     kwargs: Keyword arguments.
@@ -242,7 +242,7 @@ def ComponentLibrary(self, lib_name, *args, **kwargs):
     Passthrough return code from env.StaticLibrary() or env.SharedLibrary().
   """
   # Clone and modify environment
-  env = _ComponentPlatformSetup(self, 'ComponentLibrary', **kwargs)
+  env = _ComponentPlatformSetup(env, 'ComponentLibrary', **kwargs)
 
   # Make appropriate library type
   if env.get('COMPONENT_STATIC'):
@@ -277,7 +277,7 @@ def ComponentLibrary(self, lib_name, *args, **kwargs):
   env.Publish(lib_name, 'debug', need_for_debug)
 
   # Add an alias to build and copy the library, and add it to the right groups
-  a = self.Alias(lib_name, all_outputs)
+  a = env.Alias(lib_name, all_outputs)
   for group in env['COMPONENT_LIBRARY_GROUPS']:
     SCons.Script.Alias(group, a)
 
@@ -366,11 +366,11 @@ def ComponentTestProgramDeferred(env):
     env.SetTargetProperty(prog_name, RUN_TARGET='run_' + prog_name)
 
 
-def ComponentTestProgram(self, prog_name, *args, **kwargs):
+def ComponentTestProgram(env, prog_name, *args, **kwargs):
   """Pseudo-builder for test program to handle platform-dependent type.
 
   Args:
-    self: Environment in which we were called.
+    env: Environment in which we were called.
     prog_name: Test program name.
     args: Positional arguments.
     kwargs: Keyword arguments.
@@ -379,7 +379,7 @@ def ComponentTestProgram(self, prog_name, *args, **kwargs):
     Output node list from env.Program().
   """
   # Clone and modify environment
-  env = _ComponentPlatformSetup(self, 'ComponentTestProgram', **kwargs)
+  env = _ComponentPlatformSetup(env, 'ComponentTestProgram', **kwargs)
 
   env['PROGRAM_BASENAME'] = prog_name
   env['PROGRAM_NAME'] = '$PROGPREFIX$PROGRAM_BASENAME$PROGSUFFIX'
@@ -434,11 +434,11 @@ def ComponentProgramDeferred(env):
   env.Alias(prog_name, all_outputs)
 
 
-def ComponentProgram(self, prog_name, *args, **kwargs):
+def ComponentProgram(env, prog_name, *args, **kwargs):
   """Pseudo-builder for program to handle platform-dependent type.
 
   Args:
-    self: Environment in which we were called.
+    env: Environment in which we were called.
     prog_name: Test program name.
     args: Positional arguments.
     kwargs: Keyword arguments.
@@ -447,7 +447,7 @@ def ComponentProgram(self, prog_name, *args, **kwargs):
     Output node list from env.Program().
   """
   # Clone and modify environment
-  env = _ComponentPlatformSetup(self, 'ComponentProgram', **kwargs)
+  env = _ComponentPlatformSetup(env, 'ComponentProgram', **kwargs)
 
   env['PROGRAM_BASENAME'] = prog_name
 
@@ -481,11 +481,11 @@ def ComponentProgram(self, prog_name, *args, **kwargs):
 #------------------------------------------------------------------------------
 
 
-def ComponentTestOutput(self, test_name, nodes, **kwargs):
+def ComponentTestOutput(env, test_name, nodes, **kwargs):
   """Pseudo-builder for test output.
 
   Args:
-    self: Environment in which we were called.
+    env: Environment in which we were called.
     test_name: Test name.
     nodes: List of files/Nodes output by the test.
     kwargs: Keyword arguments.
@@ -495,7 +495,7 @@ def ComponentTestOutput(self, test_name, nodes, **kwargs):
   """
 
   # Clone and modify environment
-  env = _ComponentPlatformSetup(self, 'ComponentTestObject', **kwargs)
+  env = _ComponentPlatformSetup(env, 'ComponentTestObject', **kwargs)
 
   # Add an alias for the test output
   a = env.Alias(test_name, nodes)
@@ -616,4 +616,3 @@ def generate(env):
   AddTargetGroup('run_small_tests', 'small tests can be run')
   AddTargetGroup('run_medium_tests', 'medium tests can be run')
   AddTargetGroup('run_large_tests', 'large tests can be run')
-

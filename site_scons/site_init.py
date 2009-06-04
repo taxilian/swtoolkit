@@ -207,8 +207,8 @@ def BuildEnvironmentSConscripts(env):
           '\$TARGET_ROOT or \$MAIN_DIR' % c_script)
 
 
-def BuildEnvironments(environments):
-  """Build a collection of SConscripts under a collection of environments.
+def FilterEnvironments(environments):
+  """Filters out the environments to be actually build from the specified list
 
   Only environments with HOST_PLATFORMS containing the platform specified by
   --host-platform (or the native host platform, if --host-platform was not
@@ -218,16 +218,14 @@ def BuildEnvironments(environments):
   command line argument (or 'default', if no mode(s) were specified).  If any
   of the modes match the environment's BUILD_TYPE or any of the environment's
   BUILD_GROUPS, all the BUILD_SCONSCRIPTS (and for legacy reasons,
-  BUILD_COMPONENTS) in that environment will be built.
+  BUILD_COMPONENTS) in that environment will be matched.
 
   Args:
     environments: List of SCons environments.
 
   Returns:
-    List of environments which were actually evaluated (built).
+    List of environments which were matched
   """
-  usage_log.log.AddEntry('BuildEnvironments start')
-
   # Get options
   build_modes = SCons.Script.GetOption('build_mode')
   # TODO: Remove support legacy MODE= argument, once everyone has transitioned
@@ -247,6 +245,23 @@ def BuildEnvironments(environments):
 
     if e.Overlap([e['BUILD_TYPE'], e['BUILD_GROUPS']], build_modes):
       environments_to_evaluate.append(e)
+  return environments_to_evaluate
+
+
+def BuildEnvironments(environments):
+  """Build a collection of SConscripts under a collection of environments.
+
+  The environments are subject to filtering (c.f. FilterEnvironments)
+
+  Args:
+    environments: List of SCons environments.
+
+  Returns:
+    List of environments which were actually evaluated (built).
+  """
+  usage_log.log.AddEntry('BuildEnvironments start')
+
+  environments_to_evaluate = FilterEnvironments(environments)
 
   for e in environments_to_evaluate:
     # Make this the root environment for deferred functions, so they don't
@@ -347,6 +362,7 @@ def SiteInitMain():
 
   # Let people use new global methods directly.
   __builtin__.AddSiteDir = AddSiteDir
+  __builtin__.FilterEnvironments = FilterEnvironments
   __builtin__.BuildEnvironments = BuildEnvironments
   # Legacy method names
   # TODO: Remove these once they're no longer used anywhere.

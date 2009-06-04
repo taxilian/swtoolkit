@@ -31,9 +31,6 @@
 """Collada DOM 1.3.0 tool for SCons."""
 
 
-import sys
-
-
 def generate(env):
   # NOTE: SCons requires the use of this name, which fails gpylint.
   """SCons entry point for this tool."""

@@ -121,26 +121,26 @@ def BuildTargetsWrapper(fs, options, targets, target_top):
     log.AddEntry('build_targets done')
 
 
-def PrecmdWrapper(self, line):
+def PrecmdWrapper(cmd, line):
   """Pre-command handler for SCons.Script.Interactive() to support logging.
 
   Args:
-    self: cmd object.
+    cmd: cmd object.
     line: Command line which will be executed.
 
   Returns:
     Passthru value of line.
   """
   log.AddEntry('Interactive start')
-  log.SetParam('interactive.command', line or self.lastcmd)
+  log.SetParam('interactive.command', line or cmd.lastcmd)
   return line
 
 
-def PostcmdWrapper(self, stop, line):
+def PostcmdWrapper(cmd, stop, line):
   """Post-command handler for SCons.Script.Interactive() to support logging.
 
   Args:
-    self: cmd object.
+    cmd: cmd object.
     stop: Will execution stop after this function exits?
     line: Command line which was executed.
 
@@ -288,11 +288,11 @@ def AtModuleLoad():
   atexit.register(AtExit)
 
 
-def FileDumpWriter(log):
+def FileDumpWriter(log_to_dump):
   """Dumps the log to the specified file."""
-  print 'Writing usage log to %s...' % log.dump_to_file
-  f = open(log.dump_to_file, 'wt')
-  doc = log.ConvertToXml()
+  print 'Writing usage log to %s...' % log_to_dump.dump_to_file
+  f = open(log_to_dump.dump_to_file, 'wt')
+  doc = log_to_dump.ConvertToXml()
   doc.writexml(f, encoding='UTF-8', addindent='  ', newl='\n')
   doc.unlink()
   f.close()

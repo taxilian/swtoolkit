@@ -42,21 +42,21 @@ import SCons
 #------------------------------------------------------------------------------
 
 
-def FilterOut(self, **kw):
+def FilterOut(env, **kw):
   """Removes values from existing construction variables in an Environment.
 
   The values to remove should be a list.  For example:
 
-  self.FilterOut(CPPDEFINES=['REMOVE_ME', 'ME_TOO'])
+  env.FilterOut(CPPDEFINES=['REMOVE_ME', 'ME_TOO'])
 
   Args:
-    self: Environment to alter.
+    env: Environment to alter.
     kw: (Any other named arguments are values to remove).
   """
 
   kw = SCons.Environment.copy_non_reserved_keywords(kw)
   for key, val in kw.items():
-    envval = self.get(key, None)
+    envval = env.get(key, None)
     if envval is None:
       # No existing variable in the environment, so nothing to delete.
       continue
@@ -66,7 +66,7 @@ def FilterOut(self, **kw):
       while vremove in envval:
         envval.remove(vremove)
 
-    self[key] = envval
+    env[key] = envval
 
     # TODO: SCons.Environment.Append() has much more logic to deal with various
     # types of values.  We should handle all those cases in here too.  (If
@@ -75,11 +75,11 @@ def FilterOut(self, **kw):
 #------------------------------------------------------------------------------
 
 
-def Overlap(self, values1, values2):
+def Overlap(env, values1, values2):
   """Checks for overlap between the values.
 
   Args:
-    self: Environment to use for variable substitution.
+    env: Environment to use for variable substitution.
     values1: First value(s) to compare.  May be a string or list of strings.
     values2: Second value(s) to compare.  May be a string or list of strings.
 
@@ -87,21 +87,21 @@ def Overlap(self, values1, values2):
     The list of values in common after substitution, or an empty list if
     the values do not overlap.
 
-  Converts the values to a set of plain strings via self.SubstList2() before
+  Converts the values to a set of plain strings via env.SubstList2() before
   comparison, so SCons $ variables are evaluated.
   """
-  set1 = set(self.SubstList2(values1))
-  set2 = set(self.SubstList2(values2))
+  set1 = set(env.SubstList2(values1))
+  set2 = set(env.SubstList2(values2))
   return list(set1.intersection(set2))
 
 #------------------------------------------------------------------------------
 
 
-def ApplySConscript(self, sconscript_file):
+def ApplySConscript(env, sconscript_file):
   """Applies a SConscript to the current environment.
 
   Args:
-    self: Environment to modify.
+    env: Environment to modify.
     sconscript_file: Name of SConscript file to apply.
 
   Returns:
@@ -118,7 +118,7 @@ def ApplySConscript(self, sconscript_file):
   (and write unit tests for them).
 
   ApplySConscript() is equivalent to the following SCons call:
-      SConscript(sconscript_file, exports={'env':self})
+      SConscript(sconscript_file, exports={'env':env})
 
   The called SConscript should import the 'env' variable to get access to the
   calling environment:
@@ -131,16 +131,16 @@ def ApplySConscript(self, sconscript_file):
   If you need to export multiple variables to the called SConscript, or return
   variables from it, use the existing SConscript() function.
   """
-  return self.SConscript(sconscript_file, exports={'env': self})
+  return env.SConscript(sconscript_file, exports={'env': env})
 
 #------------------------------------------------------------------------------
 
 
-def BuildSConscript(self, sconscript_file):
+def BuildSConscript(env, sconscript_file):
   """Builds a SConscript based on the current environment.
 
   Args:
-    self: Environment to clone and pass to the called SConscript.
+    env: Environment to clone and pass to the called SConscript.
     sconscript_file: Name of SConscript file to build.  If this is a directory,
         this method will look for sconscript_file+'/build.scons', and if that
         is not found, sconscript_file+'/SConscript'.
@@ -160,9 +160,9 @@ def BuildSConscript(self, sconscript_file):
   (and write unit tests for them).
 
   BuildSConscript() is equivalent to the following SCons call:
-      SConscript(sconscript_file, exports={'env':self.Clone()})
+      SConscript(sconscript_file, exports={'env':env.Clone()})
   or if sconscript_file is a directory:
-      SConscript(sconscript_file+'/build.scons', exports={'env':self.Clone()})
+      SConscript(sconscript_file+'/build.scons', exports={'env':env.Clone()})
 
   The called SConscript should import the 'env' variable to get access to the
   calling environment:
@@ -180,24 +180,24 @@ def BuildSConscript(self, sconscript_file):
   # entry in the variant_dir, which won't exist (and thus won't be a directory
   # or a file).  This isn't a problem in BuildComponents(), since the variant
   # dir is only set inside its call to SConscript().
-  if self.Entry(sconscript_file).srcnode().isdir():
+  if env.Entry(sconscript_file).srcnode().isdir():
     # Building a subdirectory, so look for build.scons or SConscript
     script_file = sconscript_file + '/build.scons'
-    if not self.File(script_file).srcnode().exists():
+    if not env.File(script_file).srcnode().exists():
       script_file = sconscript_file + '/SConscript'
   else:
     script_file = sconscript_file
 
-  self.SConscript(script_file, exports={'env': self.Clone()})
+  env.SConscript(script_file, exports={'env': env.Clone()})
 
 #------------------------------------------------------------------------------
 
 
-def SubstList2(self, *args):
+def SubstList2(env, *args):
   """Replacement subst_list designed for flags/parameters, not command lines.
 
   Args:
-    self: Environment context.
+    env: Environment context.
     args: One or more strings or lists of strings.
 
   Returns:
@@ -222,17 +222,17 @@ def SubstList2(self, *args):
     for x in env['MYPARAMS']:
   which will throw an exception if MYPARAMS isn't defined.
   """
-  return map(str, self.Flatten(self.subst_list(args)))
+  return map(str, env.Flatten(env.subst_list(args)))
 
 
 #------------------------------------------------------------------------------
 
 
-def RelativePath(self, source, target, sep=os.sep, source_is_file=False):
+def RelativePath(env, source, target, sep=os.sep, source_is_file=False):
   """Calculates the relative path from source to target.
 
   Args:
-    self: Environment context.
+    env: Environment context.
     source: Source path or node.
     target: Target path or node.
     sep: Path separator to use in returned relative path.
@@ -244,11 +244,11 @@ def RelativePath(self, source, target, sep=os.sep, source_is_file=False):
     The relative path from source to target.
   """
   # Split source and target into list of directories
-  source = self.Entry(str(source))
+  source = env.Entry(str(source))
   if source_is_file:
     source = source.dir
   source = source.abspath.split(os.sep)
-  target = self.Entry(str(target)).abspath.split(os.sep)
+  target = env.Entry(str(target)).abspath.split(os.sep)
 
   # Handle source and target identical
   if source == target:

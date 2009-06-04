@@ -1,6 +1,21 @@
 History / release notes for Software Construction Toolkit
 
 ------------------------------------------------------------------------------
+Version 0.9.1           2009-06-03
+
+  Changes:
+
+    * Cleaned up code using pychecker (pychecker.sourceforge.net).
+    * Added env.GetPublishedWithSubdirs() to publish tool.
+    * Updated location of Native Client tarballs in naclsdk tool.
+    * Factored out FilterEnvironments() from BuildEnvironments(), so it can be
+      called separately by SConstruct if needed.
+    * Fixed setting PYTHONPATH in runtest.py; fixes test breakage caused by
+      SCons dev release QMTest/unittest.py overriding the Python library
+      version of unittest.
+    * Fixed expected output in seven_zip_test.py.
+
+------------------------------------------------------------------------------
 Version 0.9.0           2009-04-06
 
   Changes:
