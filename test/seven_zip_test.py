@@ -119,7 +119,7 @@ def main():
   test.write(base + 'bardir/bar2', 'Sample input file 2')
   test.write(base + 'fake7z.py', fake7z_contents)
 
-  test.run(chdir=base, options='.',
+  test.run(chdir=base, options='arch.7z comp.7z outdir',
            stdout=expect_stdout.replace('WORKDIR', test.workdir))
 
   test.pass_test()
