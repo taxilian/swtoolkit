@@ -202,7 +202,7 @@ def BuildEnvironmentSConscripts(env):
       ec.SConscript(c_script, build_dir='$OBJ_ROOT/' + c_dir,
                     exports={'env': ec}, duplicate=0)
     else:
-      raise SCons.Error.UserError(
+      raise SCons.Errors.UserError(
           'Bad location for a SConscript. "%s" is not under '
           '\$TARGET_ROOT or \$MAIN_DIR' % c_script)
 
