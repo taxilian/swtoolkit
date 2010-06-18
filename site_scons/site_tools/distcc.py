@@ -65,6 +65,25 @@ def generate(env):
     # results from trying to add it a second time.
     pass
 
+  # Modify compilers we support
+  distcc_compilers = env.get('DISTCC_COMPILERS', ['cc', 'gcc', 'c++', 'g++'])
+
+  if sys.platform == 'darwin':
+    for compiler_var in ('CC', 'CXX'):
+      compiler = env.get(compiler_var)
+      if compiler in distcc_compilers:
+        # On Mac, distcc requires the full path to the compiler. Even
+        # if distcc is disabled, change the compiler name to the
+        # full-path so that the compiler name is the same whether
+        # distcc is enabled or not. This prevents unnecessary
+        # recompilation when distcc is turned on/off. If we can't find
+        # the compiler, leave the non-absolute pathname as a tip-off
+        # that there's a problem and avoid the string concatenation
+        # with the none type.
+        compiler_path = env.WhereIs(compiler)
+        if compiler_path is not None:
+          env[compiler_var] = compiler_path
+
   # If distcc isn't enabled, stop now
   if not env.GetOption('distcc'):
     return
@@ -77,15 +96,28 @@ def generate(env):
       return
     env['ENV'][envvar] = value
 
+  # For distcc pump mode, copy the following variable only if they exist.
+  for envvar in ('INCLUDE_SERVER_PID', 'INCLUDE_SERVER_DIR',
+                 'INCLUDE_SERVER_PORT'):
+    value = env.get(envvar, os.environ.get(envvar))
+    if value:
+      env['ENV'][envvar] = value
+
   # Set name of distcc tool
   env['DISTCC'] = 'distcc'
 
-  # Modify compilers we support
-  distcc_compilers = env.get('DISTCC_COMPILERS', ['cc', 'gcc', 'c++', 'g++'])
+  # Change distcc_compilers to absolute paths for darwin systems since
+  # we changed the compiler variables in the environment to full-paths
+  # earlier.
+  if sys.platform == 'darwin':
+    for i in range(len(distcc_compilers)):
+      full_path = env.WhereIs(distcc_compilers[i])
+      if full_path is not None:
+        distcc_compilers[i] = full_path
+
   for compiler_var in ('CC', 'CXX'):
     compiler = env.get(compiler_var)
     if compiler in distcc_compilers:
-      if sys.platform == 'darwin':
-        # On Mac, distcc requires the full path to the compiler
-        compiler = env.WhereIs(compiler)
-      env[compiler_var] = '$DISTCC ' + compiler
+      # Surround DISTCC command with "ignore" tags to avoid
+      # recompiling unnecessarily when distcc is turned on/off
+      env[compiler_var] = '$( $DISTCC $) ' + compiler
