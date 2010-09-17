@@ -31,7 +31,9 @@
 """Test runtest (hey, recursion!) (MEDIUM TEST)."""
 
 import TestFramework
+import optparse
 import os
+import StringIO
 import sys
 
 
@@ -99,8 +101,11 @@ def main():
   test.write('dummy_test.py', dummy_test_contents)
   test.write('other.py', other_py_contents)
 
-  # On mac, help output is slightly different
-  if sys.platform == 'darwin':
+  # Alter expected result based on optparse version (string case changed).
+  op = optparse.OptionParser()
+  fh = StringIO.StringIO()
+  op.print_help(fh)
+  if 'Usage:' in fh.getvalue():
     global expect_stdout
     expect_stdout = expect_stdout.replace('usage:', 'Usage:')
     expect_stdout = expect_stdout.replace('options:', 'Options:')
